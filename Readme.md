@@ -2,6 +2,9 @@
 
 Provides some extras for creating boilerplate-free reducers
 
+[![npm version](https://badge.fury.io/js/create-reducer-extra.svg)](https://badge.fury.io/js/create-reducer-extra)
+[![CircleCI](https://circleci.com/gh/Dean177/create-reducer-extra.svg?style=svg)](https://circleci.com/gh/Dean177/create-reducer-extra)
+
 ## Usage
 
 As a convenience* all reducing functions are called directly with the actions *payload* property

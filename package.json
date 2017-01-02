@@ -26,6 +26,14 @@
       "html",
       "text"
     ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
     "moduleFileExtensions": [
       "jsx",
       "js",
@@ -64,7 +72,7 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "npm test && npm run build",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "typings": "dist/createReducerExtra.d.ts",
   "version": "0.0.1"
