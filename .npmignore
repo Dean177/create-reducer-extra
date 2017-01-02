@@ -1,0 +1,7 @@
+*.log
+coverage
+node_modules
+src
+test-output
+tsconfig.json
+yarn.lock

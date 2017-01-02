@@ -1,0 +1,71 @@
+{
+  "author": "Dean Merchant <deanmerchant@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/Dean177/create-reducer-extra/issues"
+  },
+  "dependencies": {
+    "lodash.assign": "^4.2.0"
+  },
+  "description": "Reduce boilerplate in your redux reducers",
+  "devDependencies": {
+    "@types/jest": "16.0.1",
+    "@types/lodash": "^4.14.45",
+    "@types/lodash.assign": "^4.2.0",
+    "@types/redux": "3.6.31",
+    "jest": "^18.1.0",
+    "ts-jest": "^18.0.1",
+    "typescript": "^2.1.4"
+  },
+  "homepage": "https://github.com/Dean177/create-reducer-extra#readme",
+  "jest": {
+    "coverageDirectory": "<rootDir>/test-output",
+    "coveragePathIgnorePatterns": [
+      "node_modules"
+    ],
+    "coverageReporters": [
+      "html",
+      "text"
+    ],
+    "moduleFileExtensions": [
+      "jsx",
+      "js",
+      "json",
+      "ts",
+      "tsx"
+    ],
+    "notify": true,
+    "transform": {
+      ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "<rootDir>/(build|docs|node_modules)/"
+    ],
+    "testRegex": "(\\.test)\\.ts$"
+  },
+  "keywords": [
+    "boilerplate",
+    "merge",
+    "reducer",
+    "redux",
+    "reset",
+    "typescript"
+  ],
+  "license": "MIT",
+  "main": "dist/createReducerExtra.js",
+  "name": "create-reducer-extra",
+  "peerDependencies": {
+    "redux": "3.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Dean177/create-reducer-extra.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "npm test && npm run build",
+    "test": "jest"
+  },
+  "typings": "dist/createReducerExtra.d.ts",
+  "version": "0.0.1"
+}
