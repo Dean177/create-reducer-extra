@@ -16,7 +16,6 @@ const actionHandler = {
 
 ```
 
-
 ## createMergeReducer
 
 Allows you to only specify what has changed in your reducing function, e.g
@@ -66,11 +65,16 @@ reducer(initialState, { payload: 3, type: 'Add' })
 
 ```
 
-## createResetReducer
-Provides the ability to reset a reducer to its initial state
+## createResettableReducer
+
+Provides the ability to *reset* a reducer to its initial state.
+
+This can be useful for handling things such as a logout in a single page app.
+
+The *ResetState* can be overridden in the handler to provide custom behaviour. 
 
 ```js
-import { createResetReducer, ResetState } from 'create-reducer-extra'
+import { createResettableReducer, ResetState } from 'create-reducer-extra'
 
 const initialState = { animals: ['ant', 'bat'], counter: 2 }
 
@@ -80,9 +84,28 @@ const reducer = createMergeReducer(initialState, {
 })
 
 const nextState = reducer(initialState, { payload: 5, type: 'Add' })
-// { counter: 7, favoriteFoods: ['chocolate', 'pizza'] }
+// { counter: 7, animals: ['ant', 'bat'] }
 
 reducer(nextState, { type: ResetState })
 // { animals: ['ant', 'bat'], counter: 2 } === initialState
 
+```
+
+## createResetMergeReducer
+Combines the functionality of createMergeReducer and createResettableReducer.
+
+Note that if the *ResetState* action is handled by the reducer, the result returned will be merged into the *current* state e.g.
+ 
+```js
+import { createResetMergeReducer, ResetState } from 'create-reducer-extra'
+
+const initialState = { animals: ['ant', 'bat'], counter: 2 }
+
+const reducer = createResetMergeReducer(initialState, {
+  Add: ({ counter }, incrementAmount) => ({ counter: counter + incrementAmount}),
+  [ResetState]: ({ animals }) => ({ animals: [] }),    
+})
+
+const nextState = reducer(initialState, { type: ResetState })
+// { counter: 2, animals: [] }
 ```
