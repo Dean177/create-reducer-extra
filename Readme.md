@@ -34,10 +34,10 @@ const reducer = createMergeReducer(initialState, {
 })
 
 reducer(initialState, { payload: 5, type: 'Add' })
-// { counter: 7, favoriteFoods: ['chocolate', 'pizza'] }
+// { counter: 7, animals: ['ant', 'bat'] }
 
 reducer(initialState, { payload: ['cat', 'dog'], type: 'NewAnimals' })
-// { counter: 2, favoriteFoods: ['ant', 'bat', 'cat', 'dog] }
+// { counter: 2, animals: ['ant', 'bat', 'cat', 'dog] }
 
 ```
 
