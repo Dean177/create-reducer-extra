@@ -6,11 +6,11 @@ export interface StandardAction<P> extends Action { payload?: P }
 export type Partial<S> = { [T in keyof S]?: S[T] }
 export type Readonly<S> = { readonly [T in keyof S]: S[T] }
 
-export type PartialPayloadReducer<S, P> = (state: Readonly<S>, payload:P) => Partial<S>
-export type PayloadReducer<S, P> = (state: Readonly<S>, payload:P) => S
+export type PartialPayloadReducer<S> = (state: Readonly<S>, payload: any) => Partial<S>
+export type PayloadReducer<S> = (state: Readonly<S>, payload: any) => S
 
-export interface ActionHandler<S, P> { [actionType: string]: PayloadReducer<S, P> }
-export interface PartialActionHandler<S, P> { [actionType: string]: PartialPayloadReducer<S, P> }
+export interface ActionHandler<S> { [actionType: string]: PayloadReducer<S> }
+export interface PartialActionHandler<S, P> { [actionType: string]: PartialPayloadReducer<S> }
 
 // Allows the reducer to only return what has changed, rather than having to list every single key of the state object
 export const createMergeReducer = <S, P>(initialState: S, handler: PartialActionHandler<S, P>): Reducer<S> =>
@@ -22,7 +22,7 @@ export const createMergeReducer = <S, P>(initialState: S, handler: PartialAction
     return state
   }
 
-export const createReducer = <S, P>(initialState: S, handler: ActionHandler<S, P>): Reducer<S> =>
+export const createReducer = <S, P>(initialState: S, handler: ActionHandler<S>): Reducer<S> =>
   (state: Readonly<S> = initialState, { payload, type }: StandardAction<any>): S => {
     if (handler.hasOwnProperty(type)) {
       return handler[type](state, payload)
@@ -44,7 +44,7 @@ export const createResetMergeReducer = <S, P>(initialState: S, handler: PartialA
   }
 
 export const ResetState = '__create-reducer-extra-reset-state__'
-export const createResettableReducer = <S, P>(initialState: S, handlers: ActionHandler<S, P>): Reducer<S> =>
+export const createResettableReducer = <S>(initialState: S, handlers: ActionHandler<S>): Reducer<S> =>
   (state: Readonly<S> = initialState, { payload, type }: StandardAction<any>): S => {
     if (handlers.hasOwnProperty(type)) {
       return handlers[type](state, payload)
