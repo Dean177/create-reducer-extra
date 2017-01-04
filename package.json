@@ -75,5 +75,5 @@
     "test": "jest --coverage"
   },
   "typings": "dist/createReducerExtra.d.ts",
-  "version": "0.0.1"
+  "version": "0.0.2"
 }
