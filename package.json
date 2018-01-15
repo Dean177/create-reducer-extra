@@ -1,4 +1,5 @@
 {
+  "name": "create-reducer-extra",
   "author": "Dean Merchant <deanmerchant@gmail.com>",
   "bugs": {
     "url": "https://github.com/Dean177/create-reducer-extra/issues"
@@ -9,22 +10,23 @@
   "description": "Reduce boilerplate in your redux reducers",
   "devDependencies": {
     "@types/jest": "22.0.1",
-    "@types/lodash": "^4.14.45",
-    "@types/lodash.assign": "^4.2.0",
+    "@types/lodash.assign": "^4.2.3",
     "@types/redux": "3.6.31",
+    "codecov": "3.0.0",
     "jest": "^22.0.6",
     "ts-jest": "^22.0.1",
-    "typescript": "^2.1.4"
+    "tslint": "5.9.1",
+    "typescript": "^2.6.2"
   },
   "homepage": "https://github.com/Dean177/create-reducer-extra#readme",
   "jest": {
-    "coverageDirectory": "<rootDir>/test-output",
-    "coveragePathIgnorePatterns": [
-      "node_modules"
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}"
     ],
-    "coverageReporters": [
-      "html",
-      "text"
+    "coverageDirectory": "./coverage/",
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/src/common-types.ts",
+      "<rootDir>/src/index.ts"
     ],
     "coverageThreshold": {
       "global": {
@@ -34,22 +36,19 @@
         "statements": 100
       }
     },
+    "mapCoverage": true,
     "moduleFileExtensions": [
-      "jsx",
       "js",
-      "json",
-      "ts",
-      "tsx"
+      "ts"
     ],
     "notify": true,
-    "transform": {
-      ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
     "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "<rootDir>/(build|docs|node_modules)/"
+    "testMatch": [
+      "<rootDir>/src/**/?(*.)(spec|test).ts?(x)"
     ],
-    "testRegex": "(\\.test)\\.ts$"
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
   },
   "keywords": [
     "boilerplate",
@@ -61,7 +60,7 @@
   ],
   "license": "MIT",
   "main": "dist/createReducerExtra.js",
-  "name": "create-reducer-extra",
+  "types": "dist/createReducerExtra.d.ts",
   "peerDependencies": {
     "redux": "3.x"
   },
@@ -70,10 +69,12 @@
     "url": "git+ssh://git@github.com/Dean177/create-reducer-extra.git"
   },
   "scripts": {
-    "build": "tsc",
-    "prepublish": "npm test && npm run build",
-    "test": "jest --coverage"
+    "build": "rm -rf dist && tsc --pretty",
+    "dev": "tsc --noEmit --pretty --watch",
+    "lint": "tslint ./src/**/*.ts",
+    "prepublish": "yarn build && yarn lint && yarn test",
+    "report-coverage": "codecov",
+    "test": "jest"
   },
-  "typings": "dist/createReducerExtra.d.ts",
   "version": "0.0.4"
 }

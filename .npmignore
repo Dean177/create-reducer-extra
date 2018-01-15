@@ -1,7 +1,10 @@
 *.log
-coverage
-node_modules
-src
-test-output
+.circleci/
+.DS_Store
+.idea/
+coverage/
+node_modules/
+src/
 tsconfig.json
+tslint.json
 yarn.lock

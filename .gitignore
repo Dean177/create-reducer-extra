@@ -1,6 +1,6 @@
+.DS_Store
 *.log
-coverage
-dist
-node_modules
-test-output
-yarn.lock
+.idea/
+coverage/
+dist/
+node_modules/
