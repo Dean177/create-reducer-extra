@@ -1,5 +1,7 @@
 # create-reducer-extra
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Dean177/create-reducer-extra.svg)](https://greenkeeper.io/)
+
 Provides some extras for creating boilerplate-free reducers
 
 [![npm version](https://badge.fury.io/js/create-reducer-extra.svg)](https://badge.fury.io/js/create-reducer-extra)
