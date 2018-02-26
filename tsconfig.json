@@ -6,9 +6,8 @@
     "noImplicitAny": true,
     "outDir": "./dist/",
     "sourceMap": false,
-    "strictNullChecks": true,
-    "target": "es5",
-    "typeRoots": ["./node_modules/@types"]
+    "strict": true,
+    "target": "es5"
   },
   "exclude": [
     "node_modules",
