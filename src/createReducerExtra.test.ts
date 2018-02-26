@@ -101,13 +101,14 @@ describe('createReducer', () => {
 
   it('is called with the state and actions payload', () => {
     const reducer = createReducer<MockState, typeof handledActions>(initialState, {
-      MockActionType: (state, payload) => state,
+      MockActionType: (state, payload) => {
+        spy(state, payload)
+        return state
+      },
     })
+    reducer(initialState, mockActionCreator(9))
 
-    const handledAction = { payload: '', type: 'MockActionType' }
-    reducer(initialState, handledAction)
-
-    expect(spy).toHaveBeenCalledWith(initialState, handledAction.payload)
+    expect(spy).toHaveBeenCalledWith(initialState, 9)
   })
 })
 
@@ -177,7 +178,7 @@ describe('createResetReducer', () => {
   it('looks for the actions type in its action handler map to determine the new state', () => {
     const nextState = resettableReducer(initialState, mockActionCreator(12))
     expect(spy).toHaveBeenCalledWith(initialState, 12)
-    expect(nextState).toBe(mockNextState)
+    expect(nextState).toEqual({ a: '12', b: 13 })
   })
 
   it('provides initial state to the reducer', () => {
