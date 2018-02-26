@@ -27,6 +27,12 @@ describe('action', () => {
   })
 })
 
+describe('resetState', () => {
+  it('is an action creator', () => {
+    expect(resetState().type).toBe(ResetState)
+  })
+})
+
 describe('createMergeReducer' , () => {
   it('returns the state if no handler for the action type is provided', () => {
     const somePartialState = { b: 5 }
