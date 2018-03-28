@@ -1,53 +1,82 @@
-import assign = require('lodash.assign')
-import { Action, Reducer } from 'redux'
+import { AnyAction, Reducer } from 'redux'
 
-export type StandardAction<P> = Action & { payload?: P }
+export type primitive = string | number | boolean | undefined | null
+export type DeepReadonly<T> =
+  T extends primitive ? T :
+  T extends Array<infer U> ? DeepReadonlyArray<U>:
+  DeepReadonlyObject<T>
 
-export type Readonly<S> = { readonly [T in keyof S]: S[T] }
+export interface DeepReadonlyArray<T> extends ReadonlyArray<DeepReadonly<T>> {}
 
-// tslint:disable:no-any TODO is there a convenient way to type the payloads?
-export type PartialPayloadReducer<S> = (state: Readonly<S>, payload: any) => Partial<S>
-export type PayloadReducer<S> = (state: Readonly<S>, payload: any) => S
+export type DeepReadonlyObject<T> = {
+  readonly [P in keyof T]: DeepReadonly<T[P]>
+}
 
-export type ActionHandler<S> = { [actionType: string]: PayloadReducer<S> }
-export type PartialActionHandler<S> = { [actionType: string]: PartialPayloadReducer<S> }
+export type Action<T extends string, P> = { type: T, payload: P }
 
-// Allows the reducer to only return what has changed, rather than having to list every single key of the state object
-export const createMergeReducer = <S>(initialState: S, handler: PartialActionHandler<S>): Reducer<S> =>
-  (state: Readonly<S> = initialState, { payload, type }: StandardAction<any>): S => {
+export type IntersectionOf<T> =
+  ({ [K in keyof T]: (x: T[K]) => void }) extends Record<keyof T, (x: infer V) => void> ? V : never
+
+export const action = <T extends string, P>(type: T, payload: P): Action<T, P> =>
+  ({ type, payload: payload })
+
+export type ActionHandler<S, AC> =
+  AC extends (...args: any[]) => Action<infer T, infer P> // tslint:disable-line:no-any
+    ? { [k in T]: (s: DeepReadonly<S>, p: P) => S }
+    : never
+
+export type Handler<S, ACS> = IntersectionOf<{ [K in keyof ACS]: ActionHandler<S, ACS[K]> }>
+
+export type PartialActionHandler<S, AC> =
+  AC extends (...args: any[]) => Action<infer T, infer P> // tslint:disable-line:no-any
+    ? { [k in T]: (s: DeepReadonly<S>, p: P) => Partial<S> }
+    : never
+
+export type PartialHandler<S, ACS> = IntersectionOf<{ [K in keyof ACS]: PartialActionHandler<S, ACS[K]> }>
+
+export const createReducer = <S, ACs>(initialState: S, handler: Handler<S, ACs>): Reducer<S> =>
+  (state: S = initialState, { payload, type }: AnyAction): S => {
     if (handler.hasOwnProperty(type)) {
-      const changedState: Partial<S> = handler[type](state, payload)
-      return assign({}, state, changedState)
+      return (handler as any)[type](state, payload) // tslint:disable-line:no-any
     }
     return state
   }
 
-export const createReducer = <S, P>(initialState: S, handler: ActionHandler<S>): Reducer<S> =>
-  (state: Readonly<S> = initialState, { payload, type }: StandardAction<any>): S => {
+// Allows the reducer to only return what has changed, rather than having to list every single key of the state object
+export const createMergeReducer = <S, ACs>(initialState: S, handler: PartialHandler<S, ACs>): Reducer<S> =>
+  (state: S = initialState, { payload, type }: AnyAction): S => {
     if (handler.hasOwnProperty(type)) {
-      return handler[type](state, payload)
+      const changedState: Partial<S> = (handler as any)[type](state, payload) // tslint:disable-line:no-any
+      return {
+        ...(state as {}),
+        ...(changedState as {}),
+      } as S
     }
     return state
   }
 
 // Allows the state to be 'reset' to the initialState once a particular action is received.
 // This action can be handled by the actionHandler to override this.
-export const createResetMergeReducer = <S>(initialState: S, handler: PartialActionHandler<S>): Reducer<S> =>
-  (state: Readonly<S> = initialState, { payload, type }: StandardAction<any>): S => {
+export const ResetState = '__create-reducer-extra-reset-state__'
+export const resetState = (): Action<typeof ResetState, {}> => action('__create-reducer-extra-reset-state__', {})
+export const createResetReducer = <S, ACs>(initialState: S, handler: Handler<S, ACs>): Reducer<S> =>
+  (state: S = initialState, { payload, type }: AnyAction): S => {
     if (handler.hasOwnProperty(type)) {
-      const changedState: Partial<S> = handler[type](state, payload)
-      return assign({}, state, changedState)
+      return (handler as any)[type](state, payload) // tslint:disable-line:no-any
     } else if (type === ResetState) {
       return initialState
     }
     return state
   }
 
-export const ResetState = '__create-reducer-extra-reset-state__'
-export const createResettableReducer = <S>(initialState: S, handlers: ActionHandler<S>): Reducer<S> =>
-  (state: Readonly<S> = initialState, { payload, type }: StandardAction<any>): S => {
-    if (handlers.hasOwnProperty(type)) {
-      return handlers[type](state, payload)
+export const createResetMergeReducer = <S, ACs>(initialState: S, handler: PartialHandler<S, ACs>): Reducer<S> =>
+  (state: S = initialState, { payload, type }: AnyAction): S => {
+    if (handler.hasOwnProperty(type)) {
+      const changedState: Partial<S> = (handler as any)[type](state, payload) // tslint:disable-line:no-any
+      return {
+        ...(state as {}),
+        ...(changedState as {}),
+      } as S
     } else if (type === ResetState) {
       return initialState
     }
