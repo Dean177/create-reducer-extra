@@ -24,7 +24,7 @@
   "dependencies": {},
   "peerDependencies": {
     "redux": "3.x",
-    "typescript": "2.8.0-dev.20180224"
+    "typescript": ">=2.8.0"
   },
   "devDependencies": {
     "@types/jest": "22.0.1",
@@ -33,7 +33,7 @@
     "ts-jest": "^22.0.1",
     "tslint": "5.9.1",
     "redux": "^3.7.2",
-    "typescript": "2.8.0-dev.20180224"
+    "typescript": "2.8.1"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -73,5 +73,5 @@
     "report-coverage": "codecov",
     "test": "jest"
   },
-  "version": "0.0.5-beta.1"
+  "version": "0.2.0"
 }
