@@ -2,14 +2,13 @@
 
 [![CircleCI](https://circleci.com/gh/Dean177/create-reducer-extra.svg?style=shield)](https://circleci.com/gh/Dean177/create-reducer-extra)
 [![codecov](https://codecov.io/gh/Dean177/create-reducer-extra/branch/master/graph/badge.svg)](https://codecov.io/gh/Dean177/create-reducer-extra)
-[![Greenkeeper badge](https://badges.greenkeeper.io/Dean177/create-reducer-extra.svg)](https://greenkeeper.io/)
 [![Npm](https://badge.fury.io/js/create-reducer-extra.svg)](https://www.npmjs.com/package/create-reducer-extra)
 
 A few helpful utilities for creating boilerplate-free redux reducers
 
 ## Usage
 
-As a convenience* all reducing functions are called directly with the actions *payload* property
+As a convenience all reducing functions are called directly with the actions *payload* property
 ```js
 const actionHandler = {
   ActionType: (state, payload) => { ... },
