@@ -7,14 +7,9 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      # Checkout and restore dependency cache
       - checkout
       - restore_cache:
           key: v2-dependencies-{{ checksum "yarn.lock" }}
-
-      # Download and cache dependencies
-      - run: yarn global add greenkeeper-lockfile@1 --prefix ~/repo
-      - run: ~/repo/bin/greenkeeper-lockfile-update
       - run: yarn install
       - save_cache:
           key: v2-dependencies-{{ checksum "yarn.lock" }}
@@ -23,8 +18,5 @@ jobs:
 
       - run: yarn build
       - run: yarn lint
-
-      # run tests and report the coverage
-      - run: yarn test --coverage && yarn report-coverage
-
-      - run: ~/repo/bin/greenkeeper-lockfile-upload
+      - run: yarn test --coverage
+      - run: yarn report-coverage
