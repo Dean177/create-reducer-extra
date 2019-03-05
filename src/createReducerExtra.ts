@@ -1,84 +1,85 @@
-import { AnyAction, Reducer } from 'redux'
+import { Immutable } from './immutable'
 
-export type primitive = string | number | boolean | undefined | null
-export type DeepReadonly<T> =
-  T extends primitive ? T :
-  T extends Array<infer U> ? DeepReadonlyArray<U>:
-  DeepReadonlyObject<T>
+export type Action<Type extends string, Payload> = { type: Type; payload: Payload }
 
-export interface DeepReadonlyArray<T> extends ReadonlyArray<DeepReadonly<T>> {}
+type AnyAction = Action<string, any>
 
-export type DeepReadonlyObject<T> = {
-  readonly [P in keyof T]: DeepReadonly<T[P]>
+export const action = <Type extends string, Payload>(
+  type: Type,
+  payload: Payload,
+): Action<Type, Payload> => ({ type, payload })
+
+export type Reducer<State, Actions> = (s: Immutable<State>, a: Actions) => State
+
+export type ActionFromActionCreator<ActionCreator> = ActionCreator extends (
+  ...args: any[]
+  ) => Action<infer T, infer P>
+  ? Action<T, P>
+  : never
+
+// The function types here might seem a little strange as the types this is used on don't have functions on the right hand side,
+// but its to take advantage of the following (from the TS docs):
+// > multiple candidates for the same type variable in contra-variant positions causes an intersection type to be inferred:
+// e.g.
+// ```typescript
+// type Bar<T> = T extends { a: (x: infer U) => void, b: (x: infer U) => void } ? U : never;
+// type T20 = Bar<{ a: (x: string) => void, b: (x: string) => void }>;  // string
+// type T21 = Bar<{ a: (x: string) => void, b: (x: number) => void }>;  // string & number
+// ```
+// // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#type-inference-in-conditional-types
+// See https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type another example
+export type IntersectionOf<T> = ({ [K in keyof T]: (x: T[K]) => void }) extends Record<keyof T,
+    (x: infer V) => void>
+  ? V
+  : never
+
+export type ActionHandler<State, ActionCreator> = ActionCreator extends (
+  ...args: any[]
+  ) => Action<infer T, infer P>
+  ? { [k in T]: (s: Immutable<State>, p: P) => State }
+  : never
+
+export type Handler<State, ActionCreators> = IntersectionOf<{ [K in keyof ActionCreators]: ActionHandler<State, ActionCreators[K]> }>
+
+export type PartialActionHandler<State, ActionCreator> = ActionCreator extends (
+  ...args: any[]
+  ) => Action<infer T, infer P>
+  ? { [k in T]: (s: Immutable<State>, p: P) => Partial<State> }
+  : never
+
+export type PartialHandler<State, ActionCreators> = IntersectionOf<{ [K in keyof ActionCreators]: PartialActionHandler<State, ActionCreators[K]> }>
+
+export const createReducer = <State, ActionCreators>(
+  initialState: State,
+  handler: Handler<State, ActionCreators>,
+): Reducer<State> => (
+  state: Immutable<State> = initialState as Immutable<State>,
+  { payload, type }: AnyAction,
+): State => {
+  if (handler.hasOwnProperty(type)) {
+    return (handler as any)[type](state, payload)
+  }
+  return state as State
 }
 
-export type Action<T extends string, P> = { type: T, payload: P }
-
-export type IntersectionOf<T> =
-  ({ [K in keyof T]: (x: T[K]) => void }) extends Record<keyof T, (x: infer V) => void> ? V : never
-
-export const action = <T extends string, P>(type: T, payload: P): Action<T, P> =>
-  ({ type, payload: payload })
-
-export type ActionHandler<S, AC> =
-  AC extends (...args: any[]) => Action<infer T, infer P> // tslint:disable-line:no-any
-    ? { [k in T]: (s: DeepReadonly<S>, p: P) => S }
-    : never
-
-export type Handler<S, ACS> = IntersectionOf<{ [K in keyof ACS]: ActionHandler<S, ACS[K]> }>
-
-export type PartialActionHandler<S, AC> =
-  AC extends (...args: any[]) => Action<infer T, infer P> // tslint:disable-line:no-any
-    ? { [k in T]: (s: DeepReadonly<S>, p: P) => Partial<S> }
-    : never
-
-export type PartialHandler<S, ACS> = IntersectionOf<{ [K in keyof ACS]: PartialActionHandler<S, ACS[K]> }>
-
-export const createReducer = <S, ACs>(initialState: S, handler: Handler<S, ACs>): Reducer<S> =>
-  (state: S = initialState, { payload, type }: AnyAction): S => {
-    if (handler.hasOwnProperty(type)) {
-      return (handler as any)[type](state, payload) // tslint:disable-line:no-any
-    }
-    return state
-  }
-
 // Allows the reducer to only return what has changed, rather than having to list every single key of the state object
-export const createMergeReducer = <S, ACs>(initialState: S, handler: PartialHandler<S, ACs>): Reducer<S> =>
-  (state: S = initialState, { payload, type }: AnyAction): S => {
-    if (handler.hasOwnProperty(type)) {
-      const changedState: Partial<S> = (handler as any)[type](state, payload) // tslint:disable-line:no-any
-      return {
-        ...(state as {}),
-        ...(changedState as {}),
-      } as S
-    }
-    return state
+export const createMergeReducer = <State, ActionCreators>(
+  initialState: State,
+  handler: PartialHandler<State, ActionCreators>,
+): Reducer<State> => (
+  state: Immutable<State> = initialState as Immutable<State>,
+  { payload, type }: AnyAction,
+): State => {
+  if (handler.hasOwnProperty(type)) {
+    const changedState: Partial<State> = (handler as any)[type](state, payload) // tslint:disable-line:no-any
+    return {
+      ...(state as {}),
+      ...(changedState as {}),
+    } as State
   }
+  return state as State
+}
 
-// Allows the state to be 'reset' to the initialState once a particular action is received.
-// This action can be handled by the actionHandler to override this.
-export const ResetState = '__create-reducer-extra-reset-state__'
-export const resetState = (): Action<typeof ResetState, {}> => action('__create-reducer-extra-reset-state__', {})
-export const createResetReducer = <S, ACs>(initialState: S, handler: Handler<S, ACs>): Reducer<S> =>
-  (state: S = initialState, { payload, type }: AnyAction): S => {
-    if (handler.hasOwnProperty(type)) {
-      return (handler as any)[type](state, payload) // tslint:disable-line:no-any
-    } else if (type === ResetState) {
-      return initialState
-    }
-    return state
-  }
-
-export const createResetMergeReducer = <S, ACs>(initialState: S, handler: PartialHandler<S, ACs>): Reducer<S> =>
-  (state: S = initialState, { payload, type }: AnyAction): S => {
-    if (handler.hasOwnProperty(type)) {
-      const changedState: Partial<S> = (handler as any)[type](state, payload) // tslint:disable-line:no-any
-      return {
-        ...(state as {}),
-        ...(changedState as {}),
-      } as S
-    } else if (type === ResetState) {
-      return initialState
-    }
-    return state
-  }
+// TODO create a class of functions dedicated to throwing on unhandled actions? Maybe a `strict` flag?
+export class UnhandledActionError extends Error {
+}
