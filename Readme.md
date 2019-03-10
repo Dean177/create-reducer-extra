@@ -4,7 +4,9 @@
 [![codecov](https://codecov.io/gh/Dean177/create-reducer-extra/branch/master/graph/badge.svg)](https://codecov.io/gh/Dean177/create-reducer-extra)
 [![Npm](https://badge.fury.io/js/create-reducer-extra.svg)](https://www.npmjs.com/package/create-reducer-extra)
 
-A few helpful utilities for creating boilerplate-free [Redux](https://redux.js.org/introduction) reducers with first class support for [Typescript](https://www.typescriptlang.org/)
+A few helpful utilities for creating boilerplate-free reducers with first class support for [Typescript](https://www.typescriptlang.org/).
+
+Works great with [useReducer]() or [Redux](https://redux.js.org/introduction) 
 
 
 ## Installation
@@ -19,7 +21,7 @@ Or using npm
 
 As a convenience all reducing functions are called directly with the actions *payload* property
 
-```js
+```typescript
 // actions.ts
 import { action } from 'create-reducer-extra'
 
@@ -29,19 +31,24 @@ export const actionC = (someBool) => action('C', someBool)
 
 // reducer.ts
 import { createReducer } from 'create-reducer-extra'
+import * as actions from './actions'
 
-const initialState = { counter: 0 }
+type State = { counter: number }
+const initialState: State = { counter: 0 }
 
-export const reducer = createReducer<State, HandledActions>(initialState, {
-  A: (state, payload) => ({ counter: state.counter + payload[0] }),
-  B: (state, payload) => ({ counter: state.counter + Number(payload) }),
+type Actions = typeof actions
+
+
+export const reducer = createReducer<State, Actions>(initialState, {
+  A: (state, someNumber) => ({ counter: state.counter + someNumber }),
+  B: (state, someString) => ({ counter: state.counter + Number(someString) }),
   C: (state, payload) => ({ counter: payload ? state.counter + 1 : state.counter - 1 }),
 })
 ```
 
 ## API
 
-Note that all of the createReducer functions:
+Note that all of the `createReducer` functions:
 - Expects actions to be of the form `{ type: string, payload: any }`
 - Your your handler functions will be called directly with the *payload* of the action
 
@@ -107,51 +114,6 @@ reducer(initialState, { payload: 3, type: 'Add' })
 
 ```
 
-### `createResettableReducer`
-
-Provides the ability to *reset* a reducer to its initial state.
-
-This can be useful for handling things such as a logout in a single page app.
-
-The *ResetState* can be overridden in the handler to provide custom behaviour.
-
-```js
-import { createResettableReducer, resetState } from 'create-reducer-extra'
-
-const initialState = { animals: ['ant', 'bat'], counter: 2 }
-
-const reducer = createResettableReducer(initialState, {
-  Add: ({ counter }, incrementAmount) => ({ counter: counter + incrementAmount}),
-  NewAnimals: ({ animals }, newAnimals) => ({ animals: [...animals, ...newAnimals] }),    
-})
-
-const nextState = reducer(initialState, { payload: 5, type: 'Add' })
-// { counter: 7, animals: ['ant', 'bat'] }
-
-reducer(nextState, resetState())
-// { animals: ['ant', 'bat'], counter: 2 } === initialState
-```
-
-### `createResetMergeReducer`
-
-Combines the functionality of createMergeReducer and createResettableReducer.
-
-Note that if the *ResetState* action is handled by the reducer, the result returned will be merged into the *current* state e.g.
-
-```js
-import { createResetMergeReducer, resetState } from 'create-reducer-extra'
-
-const initialState = { animals: ['ant', 'bat'], counter: 2 }
-
-const reducer = createResetMergeReducer(initialState, {
-  Add: ({ counter }, incrementAmount) => ({ counter: counter + incrementAmount}),
-  [ResetState]: ({ animals }) => ({ animals: [] }),    
-})
-
-const nextState = reducer(initialState, resetState())
-// { counter: 2, animals: [] }
-```
-
 ## Usage with Typescript
 
 This library leverages some new features introduced in Typescript 2.8 to provide complete type safety with minimal boilerplate. To take advantage of completely type-safe reducers you need to:
@@ -192,3 +154,7 @@ This library leverages some new features introduced in Typescript 2.8 to provide
   ```
 
 Voila, everything is type-safe!
+
+## Usage with React & useReducer
+
+## Usage with Redux

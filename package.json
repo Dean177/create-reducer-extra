@@ -1,14 +1,16 @@
 {
   "name": "create-reducer-extra",
-  "description": "Reduce boilerplate in your redux reducers",
+  "description": "Reduce boilerplate in your reducers",
   "author": "Dean Merchant <deanmerchant@gmail.com>",
   "keywords": [
     "boilerplate",
     "merge",
+    "react",
     "reducer",
     "redux",
     "reset",
-    "typescript"
+    "typescript",
+    "useReducer"
   ],
   "license": "MIT",
   "bugs": {
@@ -23,17 +25,22 @@
   "types": "dist/createReducerExtra.d.ts",
   "dependencies": {},
   "peerDependencies": {
-    "redux": "3.x",
-    "typescript": ">=2.8.0"
+    "typescript": ">=3.0.0"
   },
   "devDependencies": {
-    "@types/jest": "22.1.1",
-    "codecov": "3.0.0",
-    "jest": "^22.0.6",
-    "ts-jest": "^23.0.0",
-    "tslint": "5.9.1",
-    "redux": "^3.7.2",
-    "typescript": "2.8.1"
+    "@types/jest": "24.0.9",
+    "@types/react": "16.8.6",
+    "@types/react-dom": "16.8.2",
+    "codecov": "3.2.0",
+    "husky": "1.3.1",
+    "jest": "^24.1.0",
+    "lint-staged": "8.1.4",
+    "prettier": "1.16.4",
+    "react": "16.8.3",
+    "react-dom": "16.8.3",
+    "ts-jest": "^24.0.0",
+    "tslint": "5.13.1",
+    "typescript": "3.3.3333"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -65,12 +72,41 @@
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     }
   },
+  "prettier": {
+    "printWidth": 100,
+    "trailingComma": "all",
+    "singleQuote": true,
+    "semi": false
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": [
+        "lint-staged"
+      ],
+      "post-commit": [
+        "git update-index -g"
+      ]
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "yarn lint",
+      "yarn prettify",
+      "git add"
+    ],
+    "*.tsx": [
+      "yarn lint",
+      "yarn prettify",
+      "git add"
+    ]
+  },
   "scripts": {
-    "build": "rm -rf dist && tsc --pretty",
-    "start": "tsc --noEmit --pretty --watch",
-    "lint": "tslint ./src/**/*.ts",
+    "build": "rm -rf dist && tsc",
+    "lint": "tslint --fix",
+    "prettify": "prettier --parser typescript --write",
     "prepublish": "yarn build && yarn lint && yarn test",
     "report-coverage": "codecov",
+    "start": "tsc --noEmit --pretty --watch",
     "test": "jest"
   },
   "version": "0.2.0"
